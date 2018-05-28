@@ -21,13 +21,19 @@ public abstract class IsSequencePossibleTest {
     }
 
     @ParameterizedTest
+    @CsvSource({"B, ABBA, Possible"})
+    public void abba(String from, String to, String expected) {
+        doTest(from, to, expected);
+    }
+
+    @ParameterizedTest
     @CsvSource({"B, ABBA, Possible", "AB, ABA, Possible", "AB, BAB, Possible"})
     public void oneMovePossible(String from, String to, String expected) {
         doTest(from, to, expected);
     }
 
     @ParameterizedTest
-    @CsvSource({"A, BB, Impossible"})
+    @CsvSource({"A, BB, Impossible", "BA, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA, Impossible", "BA, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA, Impossible"})
     public void initialStringAbsentImpossible(String from, String to, String expected) {
         doTest(from, to, expected);
     }
