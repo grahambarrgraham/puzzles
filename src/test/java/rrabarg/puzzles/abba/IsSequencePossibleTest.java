@@ -27,6 +27,12 @@ public abstract class IsSequencePossibleTest {
     }
 
     @ParameterizedTest
+    @CsvSource({"AB, BAB, Possible"})
+    public void oneMovePossible1(String from, String to, String expected) {
+        doTest(from, to, expected);
+    }
+
+    @ParameterizedTest
     @CsvSource({"B, ABBA, Possible", "AB, ABA, Possible", "AB, BAB, Possible"})
     public void oneMovePossible(String from, String to, String expected) {
         doTest(from, to, expected);
