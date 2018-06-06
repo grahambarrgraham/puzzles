@@ -14,7 +14,7 @@ public class CountABCsTest {
         assertEquals(0, counter.count("B"));
         assertEquals(0, counter.count("BA"));
         assertEquals(0, counter.count("CBA"));
-        assertEquals(0, counter.count("C"));
+        assertEquals(0, counter.count("Completion"));
         assertEquals(1, counter.count("AB"));
         assertEquals(1, counter.count("AC"));
         assertEquals(1, counter.count("BC"));

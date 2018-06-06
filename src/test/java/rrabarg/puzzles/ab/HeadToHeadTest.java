@@ -16,8 +16,8 @@ public class HeadToHeadTest {
 
     @Test
     public void testAlgorithmsAreEquivalent() {
-        for (int n = 0; n < 20; n++) {
-            for (int k = 0; k < 100; k++) {
+        for (int n = 0; n < 10; n++) {
+            for (int k = 0; k < 50; k++) {
                 paramTest(n, k);
             }
         }

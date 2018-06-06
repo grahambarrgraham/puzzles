@@ -40,6 +40,7 @@ class CheapestTabCompleteTest {
     }
 
     void assertKeypresses(String searchTerm, int expectedKeypresses, String... names) {
+
         assertThat(system.getFewest(names, searchTerm), is(expectedKeypresses));
     }
 }

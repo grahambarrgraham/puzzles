@@ -1,50 +1,80 @@
 package rrabarg.puzzles.cheapesttabcomplete;
 
-import lombok.Value;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 class CheapestTabComplete {
 
-    TreeNode prefixTree = null;
+    private List<String> names = new ArrayList<>();
+    private String term;
+    private int minCost;
 
-    public int getFewest(String[] names, String w) {
+    public int getFewest(String[] names, String term) {
+        this.names.addAll(Arrays.asList(names));
+        this.names.sort(Comparator.naturalOrder());
+        this.term = term;
+        this.minCost = term.length();
 
-        Arrays.stream(names).forEach(n -> addName(n));
-        String[] prefixes = getPrefixes(w);
+        generateStates(new State(0, "", 0));
 
-        int currentBest = w.length() + 1;
+        return minCost + 1;
+    }
 
-        for(int tapPressCount = 1; tapPressCount < prefixes.length - 1; tapPressCount++) {
-            int keyPresses = (w.length() - prefixes[tapPressCount - 1].length()) + 1 + tapPressCount;
-            if (keyPresses < currentBest) {
-                currentBest = keyPresses;
+    void generateStates(State state) {
+
+        if (state == null || !term.startsWith(state.term)) {
+            return;
+        }
+
+        if (state.term.equals(term) && state.cost < minCost) {
+            minCost = state.cost;
+        }
+
+        generateStates(nextChar(state));
+        generateStates(pressTab(state));
+    }
+
+    private State pressTab(final State state) {
+
+        for (int i = state.index; i < names.size(); i++) {
+            if (names.get(i).startsWith(state.term)) {
+                return new State(i + 1, names.get(i), state.cost + 1);
             }
         }
 
-        return currentBest;
+        return null;
     }
 
-    void addName(String name) {
-        if (prefixTree == null) {
-            prefixTree = new TreeNode(null,"name", new ArrayList<>());
+    private State nextChar(State currentState) {
+
+        if (currentState.term.length() >= term.length()) {
+            return null;
+        }
+
+        String nextTerm = currentState.term + this.term.charAt(currentState.term.length());
+        return new State(currentState.index, nextTerm, currentState.cost + 1);
+    }
+
+    class State {
+        private final int index;
+        String term;
+        int cost;
+
+        public State(int index, String term, int cost) {
+            this.index = index;
+            this.term = term;
+            this.cost = cost;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s[%s]:%s", term, index, cost);
         }
     }
 
-    String[] getPrefixes(String term) {
-        return new String[] {term};
-    }
-
-
-    @Value
-    class TreeNode {
-        TreeNode parent;
-        String prefix;
-        List<TreeNode> children;
-    }
 }
+
+
+
 
 
 
