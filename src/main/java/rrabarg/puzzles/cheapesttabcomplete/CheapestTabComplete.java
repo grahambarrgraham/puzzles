@@ -1,74 +1,49 @@
 package rrabarg.puzzles.cheapesttabcomplete;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 class CheapestTabComplete {
 
-    private List<String> names = new ArrayList<>();
-    private String term;
-    private int minCost;
+    private int[] costs;
 
     public int getFewest(String[] names, String term) {
-        this.names.addAll(Arrays.asList(names));
-        this.names.sort(Comparator.naturalOrder());
-        this.term = term;
-        this.minCost = term.length();
+        costs = new int[term.length()];
+        Arrays.sort(names);
 
-        generateStates(new State(0, "", 0));
+        IntStream.range(0, term.length()).forEach(i -> costs[i] = i + 1);
 
-        return minCost + 1;
+        Stream<String> prefixStream = IntStream.range(0, term.length()).mapToObj(i -> term.substring(0, i));
+
+        prefixStream.forEach(prefix -> doTabs(prefix, names, term));
+
+        return costs[term.length() -1] + 1;
+
     }
 
-    void generateStates(State state) {
+    private void doTabs(String prefix, String[] names, String term) {
 
-        if (state == null || !term.startsWith(state.term)) {
-            return;
-        }
+        int costToHere = "".equals(prefix) ? 0 : costs[prefix.length() -1];
+        String[] tabs = genTabs(prefix, names);
 
-        if (state.term.equals(term) && state.cost < minCost) {
-            minCost = state.cost;
-        }
-
-        generateStates(nextChar(state));
-        generateStates(pressTab(state));
-    }
-
-    private State pressTab(final State state) {
-
-        for (int i = state.index; i < names.size(); i++) {
-            if (names.get(i).startsWith(state.term)) {
-                return new State(i + 1, names.get(i), state.cost + 1);
+        for(int tabCount = 0; tabCount < tabs.length; tabCount++) {
+            String tabPrefix = tabs[tabCount];
+            if (term.startsWith(tabPrefix)) {
+                int costIndex = tabPrefix.length() - 1;
+                int tabCost = costToHere + 1 + tabCount;
+                for (int i = costIndex; i < costs.length; i++) {
+                    costs[i] = Math.min(costs[i], tabCost + i  - costIndex);
+                }
             }
         }
-
-        return null;
     }
 
-    private State nextChar(State currentState) {
-
-        if (currentState.term.length() >= term.length()) {
-            return null;
-        }
-
-        String nextTerm = currentState.term + this.term.charAt(currentState.term.length());
-        return new State(currentState.index, nextTerm, currentState.cost + 1);
-    }
-
-    class State {
-        private final int index;
-        String term;
-        int cost;
-
-        public State(int index, String term, int cost) {
-            this.index = index;
-            this.term = term;
-            this.cost = cost;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s[%s]:%s", term, index, cost);
-        }
+    private String[] genTabs(String prefix, String[] names) {
+        List<String> collect = Arrays.stream(names).filter(n -> n.startsWith(prefix)).collect(Collectors.toList());
+        return collect.toArray(new String[collect.size()]);
     }
 
 }
