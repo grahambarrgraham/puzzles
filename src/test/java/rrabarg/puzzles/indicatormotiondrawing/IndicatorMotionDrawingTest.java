@@ -1,6 +1,7 @@
 package rrabarg.puzzles.indicatormotiondrawing;
 
 import org.junit.jupiter.api.Test;
+import rrabarg.puzzles.indicatormotiondrawing.IndicatorMotionDrawing.State;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -11,7 +12,22 @@ class IndicatorMotionDrawingTest {
 
     @Test
     void empty() {
-        assertMoves(new String[]{}, '/', 0);
+        assertMoves(new String[]{" //", "///", "---"}, '-', -1);
+    }
+
+    @Test
+    void simple() {
+        assertMoves(new String[]{"///", "///", "---"}, '-', 10);
+    }
+
+    @Test
+    void blanks() {
+        assertMoves(new String[]{"/- ", "/  ", "/--"}, '/', 9);
+    }
+
+    @Test
+    void x4() {
+        assertMoves(new String[]{"/-|/", "/ |/", "-/\\/"}, '\\', 18);
     }
 
     void assertMoves(String[] initialState, char startState, int expectedMoves) {
@@ -19,48 +35,86 @@ class IndicatorMotionDrawingTest {
     }
 
     @Test
-    public void moves3x3() {
-        assertThat(IndicatorMotionDrawing.moves(0, 0, new String[] {"///","///","///"}), is(new char[]{'D', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(0, 1, new String[] {"///","///","///"}), is(new char[]{'U', 'D', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(0, 2, new String[] {"///","///","///"}), is(new char[]{'U', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(1, 0, new String[] {"///","///","///"}), is(new char[]{'D', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(1, 1, new String[] {"///","///","///"}), is(new char[]{'U', 'D', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(1, 2, new String[] {"///","///","///"}), is(new char[]{'U', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(2, 0, new String[] {"///","///","///"}), is(new char[]{'D', 'L'}));
-        assertThat(IndicatorMotionDrawing.moves(2, 1, new String[] {"///","///","///"}), is(new char[]{'U', 'D', 'L'}));
-        assertThat(IndicatorMotionDrawing.moves(2, 2, new String[] {"///","///","///"}), is(new char[]{'U', 'L'}));
+    void moves3x3() {
+        assertThat(new State(0, 0, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'D', 'R'}));
+        assertThat(new State(0, 1, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'R'}));
+        assertThat(new State(0, 2, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'R'}));
+        assertThat(new State(1, 0, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'D', 'L', 'R'}));
+        assertThat(new State(1, 1, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'L', 'R'}));
+        assertThat(new State(1, 2, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'L', 'R'}));
+        assertThat(new State(2, 0, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'D', 'L'}));
+        assertThat(new State(2, 1, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'L'}));
+        assertThat(new State(2, 2, "").generate("///", "///", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'L'}));
     }
 
     @Test
-    public void moves4x4() {
-        assertThat(IndicatorMotionDrawing.moves(0, 0, new String[] {"////","////","////","////"}), is(new char[]{'D', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(0, 1, new String[] {"////","////","////","////"}), is(new char[]{'U', 'D', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(0, 2, new String[] {"////","////","////","////"}), is(new char[]{'U', 'D', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(0, 3, new String[] {"////","////","////","////"}), is(new char[]{'U', 'R'}));
+    void moves4x4() {
+        assertThat(new State(0, 0, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'D', 'R'}));
+        assertThat(new State(0, 1, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'R'}));
+        assertThat(new State(0, 2, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'R'}));
+        assertThat(new State(0, 3, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'R'}));
 
-        assertThat(IndicatorMotionDrawing.moves(1, 0, new String[] {"////","////","////","////"}), is(new char[]{'D', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(1, 1, new String[] {"////","////","////","////"}), is(new char[]{'U', 'D', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(1, 2, new String[] {"////","////","////","////"}), is(new char[]{'U', 'D', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(1, 3, new String[] {"////","////","////","////"}), is(new char[]{'U', 'L', 'R'}));
+        assertThat(new State(1, 0, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'D', 'L', 'R'}));
+        assertThat(new State(1, 1, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'L', 'R'}));
+        assertThat(new State(1, 2, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'L', 'R'}));
+        assertThat(new State(1, 3, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'L', 'R'}));
 
-        assertThat(IndicatorMotionDrawing.moves(2, 0, new String[] {"////","////","////","////"}), is(new char[]{'D', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(2, 1, new String[] {"////","////","////","////"}), is(new char[]{'U', 'D', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(2, 2, new String[] {"////","////","////","////"}), is(new char[]{'U', 'D', 'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(2, 3, new String[] {"////","////","////","////"}), is(new char[]{'U', 'L', 'R'}));
+        assertThat(new State(2, 0, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'D', 'L', 'R'}));
+        assertThat(new State(2, 1, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'L', 'R'}));
+        assertThat(new State(2, 2, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'L', 'R'}));
+        assertThat(new State(2, 3, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'L', 'R'}));
 
-        assertThat(IndicatorMotionDrawing.moves(3, 0, new String[] {"////","////","////","////"}), is(new char[]{'D', 'L'}));
-        assertThat(IndicatorMotionDrawing.moves(3, 1, new String[] {"////","////","////","////"}), is(new char[]{'U', 'D', 'L'}));
-        assertThat(IndicatorMotionDrawing.moves(3, 2, new String[] {"////","////","////","////"}), is(new char[]{'U', 'D', 'L'}));
-        assertThat(IndicatorMotionDrawing.moves(3, 3, new String[] {"////","////","////","////"}), is(new char[]{'U', 'L'}));
+        assertThat(new State(3, 0, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'D', 'L'}));
+        assertThat(new State(3, 1, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'L'}));
+        assertThat(new State(3, 2, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D', 'L'}));
+        assertThat(new State(3, 3, "").generate("////", "////", "////", "////").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'L'}));
     }
 
     @Test
-    public void movesWithBlanks() {
-        assertThat(IndicatorMotionDrawing.moves(1, 0, new String[] {"///","/ /","///"}), is(new char[]{'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(0, 1, new String[] {"///","/ /","///"}), is(new char[]{'U', 'D'}));
-        assertThat(IndicatorMotionDrawing.moves(2, 1, new String[] {"///","/ /","///"}), is(new char[]{'U', 'D'}));
-        assertThat(IndicatorMotionDrawing.moves(1, 2, new String[] {"///","/ /","///"}), is(new char[]{'L', 'R'}));
-        assertThat(IndicatorMotionDrawing.moves(0, 0, new String[] {"/ /"," //","///"}), is(new char[]{}));
+    void movesWithBlanks() {
+        assertThat(new State(1, 0, "").generate("///", "/ /", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'L', 'R'}));
+        assertThat(new State(0, 1, "").generate("///", "/ /", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D'}));
+        assertThat(new State(2, 1, "").generate("///", "/ /", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'U', 'D'}));
+        assertThat(new State(1, 2, "").generate("///", "/ /", "///").toCharArray(), is(new char[]{'<', '>', 'F', 'L', 'R'}));
+        assertThat(new State(0, 0, "").generate("/ /", " //", "///").toCharArray(), is(new char[]{'<', '>', 'F'}));
+    }
+
+    @Test
+    void applyMove() {
+        assertThat(new State(0, 0, "", "-//", "/ /", "///").move('R'), is(new State(1, 0, "", "--/", "/ /", "///")));
+        assertThat(new State(1, 1, "", "///", "/\\/", "///").move('L'), is(new State(0, 1, "", "///", "\\\\/", "///")));
+        assertThat(new State(1, 1, "", "///", "///", "/ /").move('D'), is(new State(1, 2, "", "///", "///", "///")));
+        assertThat(new State(1, 1, "", "/-/", "/|/", "///").move('U'), is(new State(1, 0, "", "/|/", "/|/", "///")));
+    }
+
+    @Test
+    void applyRotate() {
+        assertThat(new State(1, 0, "", "///", "/ /", "///").move('F'), is(new State(1, 0, "", "/\\/", "/ /", "///")));
+        assertThat(new State(1, 0, "", "/|/", "/ /", "///").move('F'), is(new State(1, 0, "", "/-/", "/ /", "///")));
+        assertThat(new State(1, 0, "", "/-/", "/ /", "///").move('F'), is(new State(1, 0, "", "/|/", "/ /", "///")));
+        assertThat(new State(1, 0, "", "/\\/", "/ /", "///").move('F'), is(new State(1, 0, "", "///", "/ /", "///")));
+
+        assertThat(new State(1, 1, "", "///", "/\\/", "///").move('>'), is(new State(1, 1, "", "///", "/|/", "///")));
+        assertThat(new State(1, 1, "", "///", "/|/", "///").move('>'), is(new State(1, 1, "", "///", "///", "///")));
+        assertThat(new State(1, 1, "", "///", "///", "///").move('>'), is(new State(1, 1, "", "///", "/-/", "///")));
+        assertThat(new State(1, 1, "", "///", "/-/", "///").move('>'), is(new State(1, 1, "", "///", "/\\/", "///")));
+
+        assertThat(new State(1, 1, "", "///", "/\\/", "///").move('<'), is(new State(1, 1, "", "///", "/-/", "///")));
+        assertThat(new State(1, 1, "", "///", "/-/", "///").move('<'), is(new State(1, 1, "", "///", "///", "///")));
+        assertThat(new State(1, 1, "", "///", "///", "///").move('<'), is(new State(1, 1, "", "///", "/|/", "///")));
+        assertThat(new State(1, 1, "", "///", "/|/", "///").move('<'), is(new State(1, 1, "", "///", "/\\/", "///")));
+    }
+
+    @Test
+    void score() {
+        assertThat(new State(0, 0, "", "/  ", "   ", "   ").score(new String[]{"///", "///", "///"}), is(8));
+        assertThat(new State(0, 0, ">", "/  ", "   ", "   ").score(new String[]{"///", "///", "///"}), is(9));
+        assertThat(new State(0, 0, ">DU", "/  ", "   ", "   ").score(new String[]{"///", "///", "///"}), is(11));
+
+        assertThat(new State(0, 0, "", "/  ", "   ", "   ").score(new String[]{"///", "/ /", "///"}), is(7));
+        assertThat(new State(0, 0, "", "/  ", "   ", "   ").score(new String[]{"///", "/ /", "   "}), is(4));
+        assertThat(new State(0, 0, "", "-/\\", "/\\/", "-||").score(new String[]{"-/\\", "/\\/", "-||"}), is(0));
+        assertThat(new State(0, 0, "", "-/\\", "/\\/", "-||").score(new String[]{"-/\\", "/\\/", "-| "}), is(10000));
     }
 
 }
