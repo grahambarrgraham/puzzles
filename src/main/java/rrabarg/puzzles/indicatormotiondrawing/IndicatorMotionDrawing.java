@@ -6,15 +6,16 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparingInt;
+
 public class IndicatorMotionDrawing {
 
     public int getMinSteps(String[] desiredState, char startState) {
 
+        TreeSet<State> open = new TreeSet<>(comparingInt((State o) -> o.score(desiredState))
+                        .thenComparingInt(o -> o.moves.length())
+                        .thenComparingInt(State::hashCode));
 
-        TreeSet<State> open = new TreeSet<>((o1, o2) -> {
-            int compare = Integer.compare(o1.score(desiredState), o2.score(desiredState));
-            return compare == 0 ? -1 : compare;
-        });
         open.add(State.startState(desiredState, startState));
         Set<State> closed = new HashSet<>();
 
@@ -23,7 +24,7 @@ public class IndicatorMotionDrawing {
             closed.add(currentState);
 
             if (Arrays.equals(desiredState, currentState.screen)) {
-                System.out.println("Finished " + currentState);
+                System.out.println("Finished " + currentState + " open " + open.size() + " closed " + closed.size());
                 return currentState.moves.length();
             }
 
@@ -32,6 +33,8 @@ public class IndicatorMotionDrawing {
                     .filter(state -> !closed.contains(state))
                     .forEach(open::add);
         }
+
+        System.out.println("closed " + closed.size());
 
         return -1;
     }
@@ -54,12 +57,12 @@ public class IndicatorMotionDrawing {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             State state = (State) o;
-            return x == state.x && y == state.y && Arrays.toString(screen).equals(Arrays.toString(state.screen));
+            return x == state.x && y == state.y && Arrays.equals(screen, state.screen);
         }
 
         @Override
         public int hashCode() {
-            int result = Arrays.toString(screen).hashCode();
+            int result = Arrays.hashCode(screen);
             result = 31 * result + x;
             result = 31 * result + y;
             return result;
@@ -75,19 +78,19 @@ public class IndicatorMotionDrawing {
 
             switch (move) {
                 case 'L':
-                    return new State(x - 1, y, nextMoves, set(x - 1, y, screen[y].charAt(x), screen));
+                    return new State(x - 1, y, nextMoves, move(x - 1, y, screen[y].charAt(x), screen));
                 case 'R':
-                    return new State(x + 1, y, nextMoves, set(x + 1, y, screen[y].charAt(x), screen));
+                    return new State(x + 1, y, nextMoves, move(x + 1, y, screen[y].charAt(x), screen));
                 case 'U':
-                    return new State(x, y - 1, nextMoves, set(x, y - 1, screen[y].charAt(x), screen));
+                    return new State(x, y - 1, nextMoves, move(x, y - 1, screen[y].charAt(x), screen));
                 case 'D':
-                    return new State(x, y + 1, nextMoves, set(x, y + 1, screen[y].charAt(x), screen));
+                    return new State(x, y + 1, nextMoves, move(x, y + 1, screen[y].charAt(x), screen));
                 case 'F':
-                    return new State(x, y, nextMoves, set(x, y, flip(screen[y].charAt(x)), screen));
+                    return new State(x, y, nextMoves, move(x, y, flip(screen[y].charAt(x)), screen));
                 case '<':
-                    return new State(x, y, nextMoves, set(x, y, rotateAnti(screen[y].charAt(x)), screen));
+                    return new State(x, y, nextMoves, move(x, y, rotateAnti(screen[y].charAt(x)), screen));
                 case '>':
-                    return new State(x, y, nextMoves, set(x, y, rotateCw(screen[y].charAt(x)), screen));
+                    return new State(x, y, nextMoves, move(x, y, rotateCw(screen[y].charAt(x)), screen));
             }
 
             return null;
@@ -129,6 +132,9 @@ public class IndicatorMotionDrawing {
                 for (int y = 0; y < desiredState.length; y++) {
                     if (screen[y].charAt(x) != desiredState[y].charAt(x)) {
                         minMovesRemaining++;
+                        if (neighbours(x,y, desiredState, screen).indexOf(desiredState[y].charAt(x)) == -1) {
+                            minMovesRemaining++;
+                        }
                     }
                     if (desiredState[y].charAt(x) == ' ' && screen[y].charAt(x) != ' ') {
                         return 10000;
@@ -136,7 +142,38 @@ public class IndicatorMotionDrawing {
                 }
             }
 
+
             return moves.length() + minMovesRemaining;
+        }
+
+        String neighbours(int x, int y, String[] desiredState, String[] screen) {
+            int width = desiredState[0].length();
+            int height = desiredState.length;
+
+            StringBuilder builder = new StringBuilder();
+
+            if (y > 0 && notMatches(screen, desiredState, x, y - 1)) {
+                builder.append(desiredState[y-1].charAt(x));
+            }
+
+            if (y < height - 1 && notMatches(screen, desiredState, x, y + 1)) {
+                builder.append(desiredState[y+1].charAt(x));
+            }
+
+            if (x > 0 && notMatches(screen, desiredState, x - 1, y)) {
+                builder.append(desiredState[y].charAt(x-1));
+            }
+
+
+            if (x < width - 1 && notMatches(screen, desiredState, x + 1, y)) {
+                builder.append(desiredState[y].charAt(x+1));
+            }
+
+            return builder.toString();
+        }
+
+        private boolean notMatches(String[] screen, String[] desiredState, int x, int y) {
+            return screen[y].charAt(x) != desiredState[y].charAt(x);
         }
 
         char rotateCw(char c) {
@@ -184,7 +221,7 @@ public class IndicatorMotionDrawing {
             throw new RuntimeException("Invalid flip " + c);
         }
 
-        String[] set(int x, int y, char c, String[] currentState) {
+        String[] move(int x, int y, char c, String[] currentState) {
             char[] chars = currentState[y].toCharArray();
             chars[x] = c;
             String[] result = new String[currentState.length];
