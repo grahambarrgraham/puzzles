@@ -132,7 +132,7 @@ public class IndicatorMotionDrawing {
                 for (int y = 0; y < desiredState.length; y++) {
                     if (screen[y].charAt(x) != desiredState[y].charAt(x)) {
                         minMovesRemaining++;
-                        if (neighbours(x,y, desiredState, screen).indexOf(desiredState[y].charAt(x)) == -1) {
+                        if (incorrectNeighbours(x,y, desiredState, screen).indexOf(desiredState[y].charAt(x)) == -1) {
                             minMovesRemaining++;
                         }
                     }
@@ -146,7 +146,7 @@ public class IndicatorMotionDrawing {
             return moves.length() + minMovesRemaining;
         }
 
-        String neighbours(int x, int y, String[] desiredState, String[] screen) {
+        String incorrectNeighbours(int x, int y, String[] desiredState, String[] screen) {
             int width = desiredState[0].length();
             int height = desiredState.length;
 
